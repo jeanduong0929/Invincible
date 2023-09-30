@@ -12,6 +12,8 @@ import {
   ShoppingBagIcon,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Category from "@/models/category";
+import instance from "@/lib/axios-config";
 
 const Navbar = (): JSX.Element => {
   // States
@@ -31,7 +33,7 @@ const Navbar = (): JSX.Element => {
     <>
       <div className="w-full border-b py-5">
         {/* Navbar container */}
-        <nav className="flex items-center justify-between max-w-screen-xl mx-auto w-full">
+        <nav className="flex items-center justify-between max-w-screen-xl mx-auto w-11/12">
           {/* Left side */}
           <LeftItems
             shopDropdown={shopDropdown}
@@ -134,35 +136,39 @@ const RightItems: React.FC<RightItemProps> = ({ session }): JSX.Element => {
 
 /* ######################################## SHOP DROPDOWN ######################################## */
 
-const ShopDropdown = (): JSX.Element => {
-  const shopPages = [
-    {
-      id: 1,
-      title: "Basics",
-      path: "basics",
-    },
-    {
-      id: 2,
-      title: "Tops",
-      path: "tops",
-    },
-    {
-      id: 3,
-      title: "Bottoms",
-      path: "bottoms",
-    },
-  ];
+const ShopDropdown = (): JSX.Element | null => {
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    getCategories();
+  }, []);
+
+  const getCategories = async () => {
+    setLoading(true);
+    try {
+      const { data } = await instance.get("/category");
+      setCategories(data);
+    } catch (error: any) {
+      console.error("Error fetching categories: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return null;
 
   return (
     <>
       <div className="absolute w-full border-b left-0 top-20 z-20 bg-white border-t">
         <nav className="flex items-center gap-5 max-w-screen-xl mx-auto py-3">
-          {shopPages.map((page) => (
+          {categories.map((categories) => (
             <Link
+              key={categories._id}
               className="hover:underline underline-offset-4"
-              href={`/collections/${page.path}`}
+              href={`/collections/${categories.name}`}
             >
-              {page.title}
+              {categories.name}
             </Link>
           ))}
         </nav>

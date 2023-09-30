@@ -1,8 +1,10 @@
 import AccountEntity from "@/entities/account-entity";
 import UserEntity from "@/entities/user-entity";
-import connectDB from "@/lib/db";
-import NextAuth from "next-auth";
+import NextAuth, { Session } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
+import connectDB from "@/lib/db";
+import jwt from "jsonwebtoken";
+import { JWT } from "next-auth/jwt";
 
 const handler = NextAuth({
   providers: [
@@ -27,6 +29,18 @@ const handler = NextAuth({
         profile,
       );
       return signInHelper(user.email, providerId, providerType);
+    },
+    async jwt({ user, token }: { user: any; token: any }): Promise<JWT> {
+      return jwtHelper(user, token);
+    },
+    async session({
+      session,
+      token,
+    }: {
+      session: any;
+      token: any;
+    }): Promise<Session> {
+      return sessionHelper(session, token);
     },
   },
   pages: {
@@ -101,6 +115,40 @@ const signInHelper = async (
     console.error("Error in signInHelper: ", error);
     return false;
   }
+};
+
+const jwtHelper = async (user: any, token: any): Promise<JWT> => {
+  if (user) {
+    // Find the user in the database
+    const existingUser = await UserEntity.findOne({ email: user.email });
+
+    // Create a new token
+    const jwtToken = jwt.sign(
+      {
+        _id: existingUser._id,
+        email: existingUser.email,
+      },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" },
+    );
+
+    // Add the token and ID to the jwt property
+    token.jwt = jwtToken;
+    token.id = existingUser._id;
+    console.log("token: ", token);
+  }
+
+  // Return the token
+  return token;
+};
+
+const sessionHelper = async (session: any, token: any): Promise<Session> => {
+  if (session) {
+    // Add the jwt token to the session
+    session.jwt = token.jwt;
+    session.id = token.id;
+  }
+  return session;
 };
 
 export { handler as GET, handler as POST };
