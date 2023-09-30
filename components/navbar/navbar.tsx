@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Loading from "../loading";
 import UserDropdown from "./user-dropdown";
 import { Button } from "../ui/button";
 import { Session } from "next-auth";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  Loader2,
   SearchIcon,
   ShoppingBagIcon,
 } from "lucide-react";
@@ -19,6 +19,13 @@ const Navbar = (): JSX.Element => {
 
   // Session
   const { data: session, status } = useSession();
+
+  if (status === "loading")
+    return (
+      <>
+        <Loading />
+      </>
+    );
 
   return (
     <>
@@ -32,7 +39,7 @@ const Navbar = (): JSX.Element => {
           />
 
           {/* Right side */}
-          <RightItems session={session} status={status} />
+          <RightItems session={session} />
 
           {/* Shop dropdown */}
           {shopDropdown && <ShopDropdown />}
@@ -102,13 +109,9 @@ const LeftItems: React.FC<LeftItemProps> = ({
 
 interface RightItemProps {
   session: Session | null;
-  status: "loading" | "authenticated" | "unauthenticated";
 }
 
-const RightItems: React.FC<RightItemProps> = ({
-  session,
-  status,
-}): JSX.Element => {
+const RightItems: React.FC<RightItemProps> = ({ session }): JSX.Element => {
   return (
     <>
       <div className="flex items-center gap-5">
@@ -117,9 +120,7 @@ const RightItems: React.FC<RightItemProps> = ({
           <ShoppingBagIcon className="h-6 w-6" />
         </Link>
 
-        {status === "loading" ? (
-          <Loader2 className="h-6 w-6 animate-spin" />
-        ) : session ? (
+        {session ? (
           <UserDropdown session={session} />
         ) : (
           <Link href={"/login"}>
