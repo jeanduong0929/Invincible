@@ -74,14 +74,13 @@ const LoginForm = () => {
           />
 
           {/* Footer */}
-          <div className="w-full flex flex-col">
-            <div className="flex items-center w-full gap-2">
-              <hr className="w-full" />
-              <p>OR</p>
-              <hr className="w-full" />
-            </div>
-            <GithubButton />
+          <div className="flex items-center w-full gap-2">
+            <hr className="w-full" />
+            <p>OR</p>
+            <hr className="w-full" />
           </div>
+
+          <GithubButton />
         </div>
       </form>
     </>

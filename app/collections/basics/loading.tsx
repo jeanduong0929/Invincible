@@ -1,7 +1,7 @@
 import Loading from "@/components/loading";
 import React from "react";
 
-const LoginPageLoading = () => {
+const BasicsPageLoading = () => {
   return (
     <>
       <Loading />
@@ -9,4 +9,4 @@ const LoginPageLoading = () => {
   );
 };
 
-export default LoginPageLoading;
+export default BasicsPageLoading;

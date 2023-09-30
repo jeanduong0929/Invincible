@@ -9,7 +9,9 @@ const GithubButton = (): JSX.Element => {
   const handleSignIn = async (): Promise<void> => {
     setLoading(true);
     try {
-      signIn("github", { callbackUrl: "http://localhost:3000/dashboard" });
+      signIn("github", {
+        callbackUrl: "http://localhost:3000/collections/basics",
+      });
     } catch (error: any) {
       console.error(error);
     } finally {
