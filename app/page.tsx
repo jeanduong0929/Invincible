@@ -10,7 +10,7 @@ const HomePage = (): JSX.Element => {
 
   React.useEffect(() => {
     const data = sessionStorage.getItem("isLoggedIn");
-    if (!data) {
+    if (!data && session) {
       signOut();
       sessionStorage.setItem("isLoggedIn", "false");
     }
