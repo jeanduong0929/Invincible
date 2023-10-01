@@ -1,9 +1,10 @@
-import Footer from "@/components/footer";
 import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import Footer from "@/components/footer";
 import Navbar from "@/components/navbar/navbar";
 import Session from "@/context/session-provider";
+import { Inter } from "next/font/google";
+import type { Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-grow">{children}</main>
+            <Toaster />
             <Footer />
           </div>
         </Session>
