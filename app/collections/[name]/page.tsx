@@ -4,8 +4,13 @@ import Product from "@/models/product";
 import Image from "next/image";
 import instance from "@/lib/axios-config";
 import Category from "@/models/category";
+import Link from "next/link";
 
-const ProductPage = ({ params }: { params: { name: string } }): JSX.Element => {
+const CollectionsNamePage = ({
+  params,
+}: {
+  params: { name: string };
+}): JSX.Element => {
   // Param
   const { name } = params;
 
@@ -59,7 +64,10 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }): JSX.Element => {
   return (
     <>
       <div className="flex flex-col items-start gap-3 cursor-pointer hover:scale-105 transition ease-in-out duration-300">
-        <div className="flex flex-col gap-3 w-full hover:underline underline-offset-4">
+        <Link
+          href={`/products/${product.name}`}
+          className="flex flex-col gap-3 w-full hover:underline underline-offset-4"
+        >
           <Image
             src={`/images/${product.image}.png`}
             alt={product.name}
@@ -68,11 +76,11 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }): JSX.Element => {
             objectFit={"contain"}
           />
           <p className="font-bold">{product.name}</p>
-        </div>
+        </Link>
         <p>${product.price}.00 USD</p>
       </div>
     </>
   );
 };
 
-export default ProductPage;
+export default CollectionsNamePage;
