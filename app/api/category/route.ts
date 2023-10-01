@@ -8,7 +8,6 @@ export const GET = async (): Promise<NextResponse> => {
     await connectDB();
     const categories: CategoryDocument[] = await CategoryEntity.find();
     const rearranged = rearrangeCategories(categories);
-    console.log("Categories", rearranged);
     return NextResponse.json(rearranged, { status: 200 });
   } catch (error: any) {
     console.error("Error when getting categories", error);

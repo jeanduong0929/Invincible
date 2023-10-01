@@ -1,7 +1,9 @@
 "use client";
-import instance from "@/lib/axios-config";
-import Product from "@/models/product";
 import React from "react";
+import Image from "next/image";
+import Product from "@/models/product";
+import instance from "@/lib/axios-config";
+import { Button } from "@/components/ui/button";
 
 const ProductNamePage = ({ params }: { params: { name: string } }) => {
   // Path
@@ -26,7 +28,21 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
 
   return (
     <>
-      <div>{product.name}</div>
+      <div className="flex max-w-screen-xl mx-auto w-11/12 my-20 gap-10">
+        <Image
+          src={`/images/${product.image}.png`}
+          alt={product.name}
+          width={700}
+          height={700}
+        />
+
+        <div className="flex flex-col gap-5 items-start w-full">
+          <h2 className="px-20 py-2 bg-[#f0f0f0]">MADE IN USA</h2>
+          <h1 className="font-bold text-2xl">{product.name}</h1>
+          <h3 className="text-xl">${product.price}.00 USD</h3>
+          <Button className="w-full py-6 rounded-none">Add to cart</Button>
+        </div>
+      </div>
     </>
   );
 };

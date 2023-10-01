@@ -8,7 +8,6 @@ export const GET = async (
 ) => {
   try {
     const { name } = context.params;
-    console.log("Name: ", name);
 
     const validation = validateGetRequest(name);
     if (validation) return validation;
