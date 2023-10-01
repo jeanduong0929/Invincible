@@ -3,16 +3,11 @@ import React from "react";
 import Link from "next/link";
 import Loading from "../loading";
 import UserDropdown from "./user-dropdown";
+import Category from "@/models/category";
 import { Button } from "../ui/button";
 import { Session } from "next-auth";
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  SearchIcon,
-  ShoppingBagIcon,
-} from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Category from "@/models/category";
 import instance from "@/lib/axios-config";
 
 const Navbar = (): JSX.Element => {
@@ -117,11 +112,6 @@ const RightItems: React.FC<RightItemProps> = ({ session }): JSX.Element => {
   return (
     <>
       <div className="flex items-center gap-5">
-        <SearchIcon className="h-6 w-6" />
-        <Link href="/cart">
-          <ShoppingBagIcon className="h-6 w-6" />
-        </Link>
-
         {session ? (
           <UserDropdown session={session} />
         ) : (
@@ -137,14 +127,17 @@ const RightItems: React.FC<RightItemProps> = ({ session }): JSX.Element => {
 /* ######################################## SHOP DROPDOWN ######################################## */
 
 const ShopDropdown = (): JSX.Element | null => {
+  // Variable states
   const [categories, setCategories] = React.useState<Category[]>([]);
+
+  // Loading states
   const [loading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     getCategories();
   }, []);
 
-  const getCategories = async () => {
+  const getCategories = async (): Promise<void> => {
     setLoading(true);
     try {
       const { data } = await instance.get("/category");
@@ -161,7 +154,7 @@ const ShopDropdown = (): JSX.Element | null => {
   return (
     <>
       <div className="absolute w-full border-b left-0 top-20 z-20 bg-white border-t">
-        <nav className="flex items-center gap-5 max-w-screen-xl mx-auto py-3">
+        <nav className="flex items-center gap-10 max-w-screen-xl mx-auto py-3 w-11/12">
           {categories.map((categories) => (
             <Link
               key={categories._id}

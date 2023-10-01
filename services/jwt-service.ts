@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-export const isValidToken = async (token: string): Promise<boolean> => {
+export const isValidToken = (token: string): boolean => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
     return !!decoded;
