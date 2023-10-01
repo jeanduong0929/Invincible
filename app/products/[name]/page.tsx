@@ -3,12 +3,11 @@ import React from "react";
 import Image from "next/image";
 import Product from "@/models/product";
 import MySession from "@/models/session";
+import Loading from "@/components/loading";
 import instance from "@/lib/axios-config";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { successToast } from "@/services/toast-service";
-import Loading from "@/components/loading";
 import { useToast } from "@/components/ui/use-toast";
 
 const ProductNamePage = ({ params }: { params: { name: string } }) => {
@@ -32,8 +31,10 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
   const { toast } = useToast();
 
   React.useEffect(() => {
-    getProduct();
-  }, []);
+    if (session) {
+      getProduct();
+    }
+  }, [session]);
 
   const getProduct = async (): Promise<void> => {
     setPageLoading(true);
@@ -50,10 +51,17 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
   const addToCart = async (): Promise<void> => {
     setAddToCartLoading(true);
     try {
-      await instance.post("/cart", {
-        productId: product._id,
-        token: mySession!.jwt,
-      });
+      await instance.post(
+        "/cart",
+        {
+          productId: product._id,
+        },
+        {
+          headers: {
+            token: mySession!.jwt,
+          },
+        },
+      );
       toast({
         description: "Product added to cart",
         className: "bg-green-500 text-white",
@@ -73,8 +81,8 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
         <Image
           src={`/images/${product.image}.png`}
           alt={product.name}
-          width={700}
-          height={700}
+          width={1500}
+          height={1500}
         />
 
         <div className="flex flex-col gap-5 items-start w-full">

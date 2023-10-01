@@ -12,6 +12,7 @@ import { signOut } from "next-auth/react";
 import { Session } from "next-auth";
 import { LogOutIcon, ShoppingBagIcon, UserIcon } from "lucide-react";
 import { GearIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 interface UserDropdownProps {
   session: Session | null;
@@ -43,20 +44,22 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>{session?.user?.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <ShoppingBagIcon className="h-4 w-4 mr-2" />
-            Cart
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          <Link href={"/cart"}>
+            <DropdownMenuItem className="cursor-pointer">
+              <ShoppingBagIcon className="h-4 w-4 mr-2" />
+              Cart
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuItem className="cursor-pointer">
             <UserIcon className="h-4 w-4 mr-2" />
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer">
             <GearIcon className="h-4 w-4 mr-2" />
             Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut}>
+          <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
             <LogOutIcon className="h-4 w-4 mr-2" />
             Sign out
           </DropdownMenuItem>

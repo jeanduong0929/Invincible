@@ -5,6 +5,7 @@ import Image from "next/image";
 import instance from "@/lib/axios-config";
 import Category from "@/models/category";
 import Link from "next/link";
+import Loading from "@/components/loading";
 
 const CollectionsNamePage = ({
   params,
@@ -17,11 +18,15 @@ const CollectionsNamePage = ({
   // Variable states
   const [products, setProducts] = React.useState<Product[]>([]);
 
+  // Loading states
+  const [pageLoading, setPageLoading] = React.useState<boolean>(true);
+
   React.useEffect(() => {
     getCategory();
   }, []);
 
   const getCategory = async (): Promise<void> => {
+    setPageLoading(true);
     try {
       const { data } = await instance.get(`/category/${name}`);
       if (data) {
@@ -29,6 +34,8 @@ const CollectionsNamePage = ({
       }
     } catch (error: any) {
       console.error("Error when getting category", error);
+    } finally {
+      setPageLoading(false);
     }
   };
 
@@ -40,6 +47,8 @@ const CollectionsNamePage = ({
       console.error("Error when getting product", error);
     }
   };
+
+  if (pageLoading) return <Loading />;
 
   return (
     <>
