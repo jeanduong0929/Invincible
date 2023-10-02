@@ -7,6 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import instance from "@/lib/axios-config";
 import { useSession } from "next-auth/react";
+import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const CartPage = (): JSX.Element => {
   // Variable states
@@ -57,14 +59,21 @@ const CartPage = (): JSX.Element => {
         <table className="w-full text-left">
           <thead className="border-b">
             <tr>
-              <th className="text-left">Product</th>
-              <th className="text-center">Quantity</th>
-              <th className="text-right">Price</th>
+              <th className="text-left pb-5 font-normal">Product</th>
+              <th className="text-left font-normal">
+                <div className="max-w-[200px]">Quantity</div>
+              </th>
+              <th className="text-right font-normal">Price</th>
             </tr>
           </thead>
           <tbody>
             {cartItems.map((item) => (
-              <ProductItem key={item._id} cartItem={item} />
+              <ProductItem
+                key={item._id}
+                cartItem={item}
+                mySession={mySession}
+                setCartItems={setCartItems}
+              />
             ))}
           </tbody>
         </table>
@@ -77,24 +86,74 @@ const CartPage = (): JSX.Element => {
 
 interface ProductItemProps {
   cartItem: CartItem;
+  mySession: MySession | null;
+  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
-const ProductItem: React.FC<ProductItemProps> = ({ cartItem }): JSX.Element => {
+const ProductItem: React.FC<ProductItemProps> = ({
+  cartItem,
+  mySession,
+  setCartItems,
+}): JSX.Element => {
+  // Loading states
+  const [deleteCartItemLoading, setDeleteCartItemLoading] =
+    React.useState<boolean>(false);
+
+  // Custom hooks
+  const { toast } = useToast();
+
+  const deleteCartItem = async (id: string): Promise<void> => {
+    setDeleteCartItemLoading(true);
+    try {
+      await instance.delete(`/cart/${id}`, {
+        headers: {
+          token: mySession!.jwt,
+        },
+      });
+      setCartItems((prev) => prev.filter((item) => item._id !== id));
+
+      toast({
+        description: "Item removed from cart",
+        className: "bg-green-500 text-white",
+      });
+    } catch (error: any) {
+      console.error(error);
+    } finally {
+      setDeleteCartItemLoading(false);
+    }
+  };
+
   return (
-    <>
-      <tr>
-        <td className="text-left py-5">
-          <Image
-            src={`/images/${cartItem.image}.png`}
-            alt={cartItem.name}
-            width={100}
-            height={100}
-          />
-        </td>
-        <td className="text-center">1</td>
-        <td className="text-right">${cartItem.price}.00 USD</td>
-      </tr>
-    </>
+    <tr>
+      <td className="text-left py-5">
+        <Image
+          src={`/images/${cartItem.image}.png`}
+          alt={cartItem.name}
+          width={130}
+          height={130}
+        />
+      </td>
+      <td>
+        {deleteCartItemLoading ? (
+          <Loader2 className="w-5 h-5 animate-spin" />
+        ) : (
+          <div className="text-center flex items-center max-w-[200px] gap-3">
+            <div className="flex items-center justify-between border w-full py-3 px-5">
+              <MinusIcon className="w-5 h-5 cursor-pointer" />
+              <p>{cartItem.quantity}</p>
+              <PlusIcon className="w-5 h-5 cursor-pointer" />
+            </div>
+            <TrashIcon
+              className="w-5 h-5 cursor-pointer"
+              onClick={() => deleteCartItem(cartItem._id)}
+            />
+          </div>
+        )}
+      </td>
+      <td className="text-right">
+        <div className="flex justify-end">${cartItem.price}.00 USD</div>
+      </td>
+    </tr>
   );
 };
 

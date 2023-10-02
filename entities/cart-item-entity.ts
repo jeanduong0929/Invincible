@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export interface CartItemDocument extends mongoose.Document {
   name: string;
   price: number;
+  quantity: number;
   description: string;
   image: string;
   product: mongoose.Schema.Types.ObjectId;
@@ -16,6 +17,10 @@ const cartItemSchema = new mongoose.Schema<CartItemDocument>(
       required: true,
     },
     price: {
+      type: Number,
+      required: true,
+    },
+    quantity: {
       type: Number,
       required: true,
     },

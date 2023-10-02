@@ -1,9 +1,10 @@
-import CartItemEntity, { CartItemDocument } from "@/entities/cart-item-entity";
-import { JwtPayload } from "jsonwebtoken";
-import CartEntity, { CartDocument } from "@/entities/cart-entity";
-import { NextRequest, NextResponse } from "next/server";
-import { getDecodedToken, isValidToken } from "@/services/jwt-service";
+import connectDB from "@/lib/db";
 import ProductEntity from "@/entities/product-entity";
+import { JwtPayload } from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
+import CartEntity, { CartDocument } from "@/entities/cart-entity";
+import CartItemEntity, { CartItemDocument } from "@/entities/cart-item-entity";
+import { getDecodedToken, isValidToken } from "@/services/jwt-service";
 
 interface DecodedToken extends JwtPayload {
   _id: string;
@@ -31,6 +32,7 @@ export const GET = async (req: NextRequest) => {
     const cartItems: CartItemDocument[] | null = await CartItemEntity.find({
       cart: myCart!._id,
     }).exec();
+
     return NextResponse.json(cartItems, { status: 200 });
   } catch (error: any) {
     console.error("Error when getting cart", error);
@@ -43,22 +45,45 @@ export const POST = async (req: NextRequest) => {
     const { productId } = await req.json();
     const token = req.headers.get("token") as string;
 
+    // Validate the request
     const validation = validatePostRequest(productId, token);
     if (validation) {
       return validation;
     }
 
+    // Decode the user id from the token
     const { _id } = getDecodedToken(token) as DecodedToken;
+
+    // Get the product
     const foundProduct = await ProductEntity.findById(productId);
+
+    // Get the user cart
     const myCart = await getCart(_id);
 
-    await CartItemEntity.create({
+    // Get the existing cart item
+    const existingCartItem = await CartItemEntity.findOne({
       name: foundProduct.name,
-      price: foundProduct.price,
-      description: foundProduct.description,
-      image: foundProduct.image,
       cart: myCart._id,
     });
+
+    // If the cart item already exists, update the quantity else create a new cart item
+    if (existingCartItem) {
+      existingCartItem.quantity += 1;
+      existingCartItem.price *= existingCartItem.quantity;
+      await CartItemEntity.findByIdAndUpdate(existingCartItem._id, {
+        quantity: existingCartItem.quantity,
+        price: existingCartItem.price,
+      });
+    } else {
+      await CartItemEntity.create({
+        name: foundProduct.name,
+        price: foundProduct.price,
+        quantity: 1,
+        description: foundProduct.description,
+        image: foundProduct.image,
+        cart: myCart._id,
+      });
+    }
 
     return NextResponse.json({}, { status: 200 });
   } catch (error: any) {
