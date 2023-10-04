@@ -138,6 +138,20 @@ const ProductItem: React.FC<ProductItemProps> = ({
           return item;
         }),
       );
+
+      await instance.patch(
+        "/cart",
+        {
+          id,
+          add: true,
+          minus: false,
+        },
+        {
+          headers: {
+            token: mySession!.jwt,
+          },
+        },
+      );
     } catch (error: any) {
       console.error(error);
     }
@@ -155,6 +169,20 @@ const ProductItem: React.FC<ProductItemProps> = ({
           }
           return item;
         }),
+      );
+
+      await instance.patch(
+        "/cart",
+        {
+          id,
+          add: false,
+          minus: true,
+        },
+        {
+          headers: {
+            token: mySession!.jwt,
+          },
+        },
       );
     } catch (error: any) {
       console.error(error);

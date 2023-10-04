@@ -20,6 +20,9 @@ export const GET = async (req: NextRequest) => {
       return validation;
     }
 
+    // Connect to the database
+    await connectDB();
+
     // Decode the user from the token
     const decodedToken: DecodedToken = getDecodedToken(token) as DecodedToken;
 
@@ -50,6 +53,9 @@ export const POST = async (req: NextRequest) => {
     if (validation) {
       return validation;
     }
+
+    // Connect to the database
+    await connectDB();
 
     // Decode the user id from the token
     const { _id } = getDecodedToken(token) as DecodedToken;
@@ -92,6 +98,44 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
+export const PATCH = async (req: NextRequest) => {
+  try {
+    // Get the request body
+    const { id, add, minus } = await req.json();
+    const token = req.headers.get("token") as string;
+
+    // Validate the request
+    const validation = validatePatchRequest(id, add, minus, token);
+    if (validation) {
+      return validation;
+    }
+
+    // Connect to the database
+    await connectDB();
+
+    // Get the cart item
+    const foundCartItem = await CartItemEntity.findById(id);
+
+    // Update the cart item
+    if (add) {
+      // If add is true, increment the quantity by 1
+      await CartItemEntity.updateOne({
+        quantity: foundCartItem!.quantity + 1,
+      });
+    } else if (minus) {
+      // If minus is true, decrement the quantity by 1 only if the quantity is greater than 1
+      await CartItemEntity.updateOne({
+        quantity: foundCartItem.quantity > 1 ? foundCartItem.quantity - 1 : 1,
+      });
+    }
+
+    return NextResponse.json({}, { status: 200 });
+  } catch (error: any) {
+    console.error("Error when updating cart", error);
+    return NextResponse.json({}, { status: 500 });
+  }
+};
+
 /* ######################################## HELPER FUNCTIONS ######################################## */
 
 const validateGetRequest = (token: string): NextResponse | null => {
@@ -130,4 +174,26 @@ const getCart = async (_id: string): Promise<CartDocument> => {
     return newCart;
   }
   return existingCart;
+};
+
+const validatePatchRequest = (
+  id: string,
+  add: boolean,
+  minus: boolean,
+  token: string
+): NextResponse | null => {
+  console.log("Id: ", id);
+  console.log("Add: ", add);
+  console.log("Minus: ", minus);
+  console.log("Token: ", token);
+
+  if (!id || !token) {
+    console.error("Missing id, add, minus or token");
+    return NextResponse.json({}, { status: 400 });
+  }
+  if (!isValidToken(token)) {
+    console.error("Invalid token");
+    return NextResponse.json({}, { status: 401 });
+  }
+  return null;
 };

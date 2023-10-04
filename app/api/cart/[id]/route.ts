@@ -13,7 +13,7 @@ export const DELETE = async (
     const token = req.headers.get("token") as string;
 
     // Validate the request
-    const validation = validateDeleteRequest(id, token);
+    const validation = validateRequest(id, token);
     if (validation) {
       return validation;
     }
@@ -38,7 +38,7 @@ export const DELETE = async (
 
 /* ######################################## HELPER FUNCTIONS ######################################## */
 
-const validateDeleteRequest = (
+const validateRequest = (
   productId: string,
   token: string,
 ): NextResponse | null => {
