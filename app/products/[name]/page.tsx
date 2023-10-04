@@ -89,7 +89,11 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
           <h2 className="px-20 py-2 bg-[#f0f0f0]">MADE IN USA</h2>
           <h1 className="font-bold text-2xl">{product.name}</h1>
           <h3 className="text-xl">${product.price}.00 USD</h3>
-          <Button className="w-full py-6 rounded-none" onClick={addToCart}>
+          <Button
+            className="w-full py-6 rounded-none"
+            onClick={addToCart}
+            disabled={addToCartLoading}
+          >
             {addToCartLoading && (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             )}

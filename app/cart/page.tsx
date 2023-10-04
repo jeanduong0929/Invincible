@@ -7,8 +7,8 @@ import Link from "next/link";
 import Image from "next/image";
 import instance from "@/lib/axios-config";
 import { useSession } from "next-auth/react";
-import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 
 const CartPage = (): JSX.Element => {
   // Variable states
@@ -98,6 +98,8 @@ const ProductItem: React.FC<ProductItemProps> = ({
   // Loading states
   const [deleteCartItemLoading, setDeleteCartItemLoading] =
     React.useState<boolean>(false);
+  const [updateQuantityLoading, setUpdateQuantityLoading] =
+    React.useState<boolean>(false);
 
   // Custom hooks
   const { toast } = useToast();
@@ -123,6 +125,42 @@ const ProductItem: React.FC<ProductItemProps> = ({
     }
   };
 
+  const addQuantity = async (id: string): Promise<void> => {
+    try {
+      setCartItems((prev) =>
+        prev.map((item) => {
+          if (item._id === id) {
+            return {
+              ...item,
+              quantity: item.quantity + 1,
+            };
+          }
+          return item;
+        }),
+      );
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  const minusQuantity = async (id: string): Promise<void> => {
+    try {
+      setCartItems((prev) =>
+        prev.map((item) => {
+          if (item._id === id) {
+            return {
+              ...item,
+              quantity: item.quantity - (item.quantity > 1 ? 1 : 0),
+            };
+          }
+          return item;
+        }),
+      );
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
   return (
     <tr>
       <td className="text-left py-5">
@@ -139,9 +177,15 @@ const ProductItem: React.FC<ProductItemProps> = ({
         ) : (
           <div className="text-center flex items-center max-w-[200px] gap-3">
             <div className="flex items-center justify-between border w-full py-3 px-5">
-              <MinusIcon className="w-5 h-5 cursor-pointer" />
+              <MinusIcon
+                className="w-5 h-5 cursor-pointer"
+                onClick={() => minusQuantity(cartItem._id)}
+              />
               <p>{cartItem.quantity}</p>
-              <PlusIcon className="w-5 h-5 cursor-pointer" />
+              <PlusIcon
+                className="w-5 h-5 cursor-pointer"
+                onClick={() => addQuantity(cartItem._id)}
+              />
             </div>
             <TrashIcon
               className="w-5 h-5 cursor-pointer"
