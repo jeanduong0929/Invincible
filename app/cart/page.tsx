@@ -99,31 +99,33 @@ const ProductItem: React.FC<ProductItemProps> = ({
   // Loading states
   const [deleteCartItemLoading, setDeleteCartItemLoading] =
     React.useState<boolean>(false);
-  const [updateQuantityLoading, setUpdateQuantityLoading] =
-    React.useState<boolean>(false);
 
   // Context
-  const { setCartItems } = React.useContext(CartContext);
+  const { cartItems, setCartItems } = React.useContext(CartContext);
 
   // Custom hooks
   const { toast } = useToast();
 
-  const deleteCartItem = async (id: string): Promise<void> => {
+  const deleteCartItem = async (item: CartItem): Promise<void> => {
     setDeleteCartItemLoading(true);
     try {
-      await instance.delete(`/cart/${id}`, {
+      await instance.delete(`/cart/${item._id}`, {
         headers: {
           token: mySession!.jwt,
         },
       });
-      setCartItemss((prev) => prev.filter((item) => item._id !== id));
+      setCartItemss((prev) => prev.filter((item) => item._id !== item._id));
+      setCartItems((prev) => prev - item.quantity);
+      sessionStorage.setItem(
+        "cartItems",
+        JSON.stringify(cartItems - item.quantity),
+      );
+      sessionStorage.removeItem("cartItems");
 
       toast({
         description: "Item removed from cart",
         className: "bg-green-500 text-white",
       });
-
-      setCartItems((prev) => prev - 1);
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -131,11 +133,11 @@ const ProductItem: React.FC<ProductItemProps> = ({
     }
   };
 
-  const addQuantity = async (id: string): Promise<void> => {
+  const addQuantity = async (item: CartItem): Promise<void> => {
     try {
       setCartItemss((prev) =>
-        prev.map((item) => {
-          if (item._id === id) {
+        prev.map((i) => {
+          if (i._id === item._id) {
             return {
               ...item,
               quantity: item.quantity + 1,
@@ -145,10 +147,14 @@ const ProductItem: React.FC<ProductItemProps> = ({
         }),
       );
 
+      setCartItems((prev) => prev + 1);
+      sessionStorage.removeItem("cartItems");
+      sessionStorage.setItem("cartItems", JSON.stringify(cartItems + 1));
+
       await instance.patch(
         "/cart",
         {
-          id,
+          id: item._id,
           add: true,
           minus: false,
         },
@@ -163,24 +169,30 @@ const ProductItem: React.FC<ProductItemProps> = ({
     }
   };
 
-  const minusQuantity = async (id: string): Promise<void> => {
+  const minusQuantity = async (item: CartItem): Promise<void> => {
     try {
       setCartItemss((prev) =>
-        prev.map((item) => {
-          if (item._id === id) {
+        prev.map((i) => {
+          if (i._id === item._id) {
             return {
-              ...item,
-              quantity: item.quantity - (item.quantity > 1 ? 1 : 0),
+              ...i,
+              quantity: i.quantity - (i.quantity > 1 ? 1 : 0),
             };
           }
           return item;
         }),
       );
 
+      if (item.quantity > 1) {
+        setCartItems((prev) => prev - 1);
+        sessionStorage.removeItem("cartItems");
+        sessionStorage.setItem("cartItems", JSON.stringify(cartItems - 1));
+      }
+
       await instance.patch(
         "/cart",
         {
-          id,
+          id: item._id,
           add: false,
           minus: true,
         },
@@ -213,17 +225,17 @@ const ProductItem: React.FC<ProductItemProps> = ({
             <div className="flex items-center justify-between border w-full py-3 px-5">
               <MinusIcon
                 className="w-5 h-5 cursor-pointer"
-                onClick={() => minusQuantity(cartItem._id)}
+                onClick={() => minusQuantity(cartItem)}
               />
               <p>{cartItem.quantity}</p>
               <PlusIcon
                 className="w-5 h-5 cursor-pointer"
-                onClick={() => addQuantity(cartItem._id)}
+                onClick={() => addQuantity(cartItem)}
               />
             </div>
             <TrashIcon
               className="w-5 h-5 cursor-pointer"
-              onClick={() => deleteCartItem(cartItem._id)}
+              onClick={() => deleteCartItem(cartItem)}
             />
           </div>
         )}

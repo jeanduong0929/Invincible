@@ -73,6 +73,8 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
       });
 
       setCartItems(cartItems + 1);
+      sessionStorage.removeItem("cartItems");
+      sessionStorage.setItem("cartItems", JSON.stringify(cartItems + 1));
     } catch (error: any) {
       console.error(error);
     } finally {
