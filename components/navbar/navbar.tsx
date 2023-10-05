@@ -5,10 +5,12 @@ import Loading from "../loading";
 import UserDropdown from "./user-dropdown";
 import Category from "@/models/category";
 import { Button } from "../ui/button";
-import { Session } from "next-auth";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, ShoppingCartIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import instance from "@/lib/axios-config";
+import CartItem from "@/models/cart-item";
+import MySession from "@/models/session";
+import { CartContext } from "@/context/cart-provider";
 
 const Navbar = (): JSX.Element => {
   // States
@@ -16,6 +18,7 @@ const Navbar = (): JSX.Element => {
 
   // Session
   const { data: session, status } = useSession();
+  const mySession = session ? (session as MySession) : null;
 
   if (status === "loading")
     return (
@@ -36,7 +39,7 @@ const Navbar = (): JSX.Element => {
           />
 
           {/* Right side */}
-          <RightItems session={session} />
+          <RightItems mySession={mySession} />
 
           {/* Shop dropdown */}
           {shopDropdown && <ShopDropdown />}
@@ -105,15 +108,28 @@ const LeftItems: React.FC<LeftItemProps> = ({
 /* ######################################## RIGHT ITEMS ######################################## */
 
 interface RightItemProps {
-  session: Session | null;
+  mySession: MySession | null;
 }
 
-const RightItems: React.FC<RightItemProps> = ({ session }): JSX.Element => {
+const RightItems: React.FC<RightItemProps> = ({ mySession }): JSX.Element => {
+  const { cartItems } = React.useContext(CartContext);
+
   return (
     <>
-      <div className="flex items-center gap-5">
-        {session ? (
-          <UserDropdown session={session} />
+      <div className="flex items-center gap-10">
+        <Link href={"/cart"}>
+          <div className="w-full relative">
+            <ShoppingCartIcon className="w-7 h-7" />
+            {cartItems > 0 && (
+              <div className="absolute rounded-full bg-red-600 w-5 h-5 top-5 left-5 flex flex-col items-center justify-center">
+                <p className="text-white text-xs text-center">{cartItems}</p>
+              </div>
+            )}
+          </div>
+        </Link>
+
+        {mySession ? (
+          <UserDropdown session={mySession} />
         ) : (
           <Link href={"/login"}>
             <Button>Login</Button>

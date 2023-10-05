@@ -9,6 +9,7 @@ import instance from "@/lib/axios-config";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { CartContext } from "@/context/cart-provider";
 
 const CartPage = (): JSX.Element => {
   // Variable states
@@ -72,7 +73,7 @@ const CartPage = (): JSX.Element => {
                 key={item._id}
                 cartItem={item}
                 mySession={mySession}
-                setCartItems={setCartItems}
+                setCartItemss={setCartItems}
               />
             ))}
           </tbody>
@@ -87,19 +88,22 @@ const CartPage = (): JSX.Element => {
 interface ProductItemProps {
   cartItem: CartItem;
   mySession: MySession | null;
-  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  setCartItemss: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
 const ProductItem: React.FC<ProductItemProps> = ({
   cartItem,
   mySession,
-  setCartItems,
+  setCartItemss,
 }): JSX.Element => {
   // Loading states
   const [deleteCartItemLoading, setDeleteCartItemLoading] =
     React.useState<boolean>(false);
   const [updateQuantityLoading, setUpdateQuantityLoading] =
     React.useState<boolean>(false);
+
+  // Context
+  const { setCartItems } = React.useContext(CartContext);
 
   // Custom hooks
   const { toast } = useToast();
@@ -112,12 +116,14 @@ const ProductItem: React.FC<ProductItemProps> = ({
           token: mySession!.jwt,
         },
       });
-      setCartItems((prev) => prev.filter((item) => item._id !== id));
+      setCartItemss((prev) => prev.filter((item) => item._id !== id));
 
       toast({
         description: "Item removed from cart",
         className: "bg-green-500 text-white",
       });
+
+      setCartItems((prev) => prev - 1);
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -127,7 +133,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   const addQuantity = async (id: string): Promise<void> => {
     try {
-      setCartItems((prev) =>
+      setCartItemss((prev) =>
         prev.map((item) => {
           if (item._id === id) {
             return {
@@ -159,7 +165,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   const minusQuantity = async (id: string): Promise<void> => {
     try {
-      setCartItems((prev) =>
+      setCartItemss((prev) =>
         prev.map((item) => {
           if (item._id === id) {
             return {

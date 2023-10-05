@@ -5,6 +5,7 @@ import Session from "@/context/session-provider";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
+import CartProvider from "@/context/cart-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,12 +25,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Session>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">{children}</main>
-            <Toaster />
-            <Footer />
-          </div>
+          <CartProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-grow">{children}</main>
+              <Toaster />
+              <Footer />
+            </div>
+          </CartProvider>
         </Session>
       </body>
     </html>

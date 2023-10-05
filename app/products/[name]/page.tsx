@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
+import { CartContext } from "@/context/cart-provider";
 
 const ProductNamePage = ({ params }: { params: { name: string } }) => {
   // Path
@@ -26,6 +27,9 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
   // Session
   const { data: session } = useSession();
   const mySession = session ? (session as MySession) : null;
+
+  // Context
+  const { cartItems, setCartItems } = React.useContext(CartContext);
 
   // Custom hooks
   const { toast } = useToast();
@@ -62,10 +66,13 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
           },
         },
       );
+
       toast({
         description: "Product added to cart",
         className: "bg-green-500 text-white",
       });
+
+      setCartItems(cartItems + 1);
     } catch (error: any) {
       console.error(error);
     } finally {
