@@ -11,7 +11,17 @@ import { CartContext } from "@/context/cart-provider";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 
-const ProductNamePage = ({ params }: { params: { name: string } }) => {
+/**
+ * @function ProductNamePage
+ * @description A component that renders a detailed view of a product.
+ * @param {Object} params - An object containing route parameters.
+ * @returns {JSX.Element} The rendered component.
+ */
+const ProductNamePage = ({
+  params,
+}: {
+  params: { name: string };
+}): JSX.Element => {
   // Path
   let { name } = params;
   name = name.split("%20").join(" ");
@@ -40,6 +50,12 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
     }
   }, [session]);
 
+  /**
+   * @async
+   * @function getProduct
+   * @description Fetches product data based on the product name.
+   * @returns {Promise<void>}
+   */
   const getProduct = async (): Promise<void> => {
     setPageLoading(true);
     try {
@@ -52,6 +68,12 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
     }
   };
 
+  /**
+   * @async
+   * @function addToCart
+   * @description Adds the product to the user's cart.
+   * @returns {Promise<void>}
+   */
   const addToCart = async (): Promise<void> => {
     setAddToCartLoading(true);
     try {
@@ -86,6 +108,10 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
     }
   };
 
+  /**
+   * @function addCartSessionStorage
+   * @description Adds a flag to the session storage indicating the cart has items.
+   */
   const addCartSessionStorage = () => {
     const data = sessionStorage.getItem("hasCartItems");
     if (!data) {

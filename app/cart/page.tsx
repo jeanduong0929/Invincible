@@ -11,6 +11,11 @@ import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 
+/**
+ * @function CartPage
+ * @description A component that renders a detailed view of a product.
+ * @returns {JSX.Element} The rendered component.
+ */
 const CartPage = (): JSX.Element => {
   // Variable states
   const [cartItems, setCartItems] = React.useState<CartItem[]>([]);
@@ -28,7 +33,13 @@ const CartPage = (): JSX.Element => {
     }
   }, [session]);
 
-  const getCart = async () => {
+  /**
+   * @async
+   * @function getCart
+   * @description Fetches cart data.
+   * @returns {Promise<void>}
+   */
+  const getCart = async (): Promise<void> => {
     setPageLoading(true);
     try {
       const { data } = await instance.get("/cart", {
@@ -85,12 +96,21 @@ const CartPage = (): JSX.Element => {
 
 /* ######################################## CART ITEM ######################################## */
 
+/**
+ * @interface ProductItemProps
+ * @description Defines the props for the ProductItem component.
+ */
 interface ProductItemProps {
   cartItem: CartItem;
   mySession: MySession | null;
   setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
+/**
+ * A component that renders a single product item in the cart.
+ * @param props - The properties or attributes of this component.
+ * @returns Rendered product item component.
+ */
 const ProductItem: React.FC<ProductItemProps> = ({
   cartItem,
   mySession,
@@ -106,6 +126,13 @@ const ProductItem: React.FC<ProductItemProps> = ({
   // Context
   const { setHasCartItems } = React.useContext(CartContext);
 
+  /**
+   * @async
+   * @function deleteCartItem
+   * @description Deletes a cart item.
+   * @param {CartItem} item - The item to delete.
+   * @returns {Promise<void>}
+   */
   const deleteCartItem = async (item: CartItem): Promise<void> => {
     setDeleteCartItemLoading(true);
     try {
@@ -143,6 +170,13 @@ const ProductItem: React.FC<ProductItemProps> = ({
     }
   };
 
+  /**
+   * @async
+   * @function addQuantity
+   * @description Increases the quantity of a cart item.
+   * @param {CartItem} item - The item to update.
+   * @returns {Promise<void>}
+   */
   const addQuantity = async (item: CartItem): Promise<void> => {
     try {
       // Update quantity in cart
@@ -179,6 +213,13 @@ const ProductItem: React.FC<ProductItemProps> = ({
     }
   };
 
+  /**
+   * @async
+   * @function minusQuantity
+   * @description Decreases the quantity of a cart item.
+   * @param {CartItem} item - The item to update.
+   * @returns {Promise<void>}
+   */
   const minusQuantity = async (item: CartItem): Promise<void> => {
     try {
       // Update quantity in cart
