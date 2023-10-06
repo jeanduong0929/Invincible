@@ -6,10 +6,10 @@ import CartItem from "@/models/cart-item";
 import Link from "next/link";
 import Image from "next/image";
 import instance from "@/lib/axios-config";
+import { CartContext } from "@/context/cart-provider";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
-import { CartContext } from "@/context/cart-provider";
 
 const CartPage = (): JSX.Element => {
   // Variable states
@@ -73,7 +73,7 @@ const CartPage = (): JSX.Element => {
                 key={item._id}
                 cartItem={item}
                 mySession={mySession}
-                setCartItemss={setCartItems}
+                setCartItems={setCartItems}
               />
             ))}
           </tbody>
@@ -88,40 +88,50 @@ const CartPage = (): JSX.Element => {
 interface ProductItemProps {
   cartItem: CartItem;
   mySession: MySession | null;
-  setCartItemss: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
 const ProductItem: React.FC<ProductItemProps> = ({
   cartItem,
   mySession,
-  setCartItemss,
+  setCartItems,
 }): JSX.Element => {
   // Loading states
   const [deleteCartItemLoading, setDeleteCartItemLoading] =
     React.useState<boolean>(false);
 
-  // Context
-  const { cartItems, setCartItems } = React.useContext(CartContext);
-
   // Custom hooks
   const { toast } = useToast();
+
+  // Context
+  const { setHasCartItems } = React.useContext(CartContext);
 
   const deleteCartItem = async (item: CartItem): Promise<void> => {
     setDeleteCartItemLoading(true);
     try {
+      // Remove item from database
       await instance.delete(`/cart/${item._id}`, {
         headers: {
           token: mySession!.jwt,
         },
       });
-      setCartItemss((prev) => prev.filter((item) => item._id !== item._id));
-      setCartItems((prev) => prev - item.quantity);
-      sessionStorage.setItem(
-        "cartItems",
-        JSON.stringify(cartItems - item.quantity),
-      );
-      sessionStorage.removeItem("cartItems");
 
+      // Remove item from cart
+      setCartItems((prev) => {
+        // Filter out the click cart item
+        const newCartItems = prev.filter((item) => item._id !== cartItem._id);
+
+        // If the new cart items length is 0, remove the hasCartItems session
+        if (newCartItems.length === 0) {
+          sessionStorage.removeItem("hasCartItems");
+          setHasCartItems(false);
+        }
+
+        // Return the new cart items
+        return newCartItems;
+      });
+
+      // Show success toaster
       toast({
         description: "Item removed from cart",
         className: "bg-green-500 text-white",
@@ -135,11 +145,14 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   const addQuantity = async (item: CartItem): Promise<void> => {
     try {
-      setCartItemss((prev) =>
-        prev.map((i) => {
-          if (i._id === item._id) {
+      // Update quantity in cart
+      setCartItems((prev) =>
+        prev.map((item) => {
+          // Update the click cart item quantity and price
+          if (item._id === cartItem._id) {
             return {
               ...item,
+              price: item.price + item.price / item.quantity,
               quantity: item.quantity + 1,
             };
           }
@@ -147,10 +160,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
         }),
       );
 
-      setCartItems((prev) => prev + 1);
-      sessionStorage.removeItem("cartItems");
-      sessionStorage.setItem("cartItems", JSON.stringify(cartItems + 1));
-
+      // Update quantity in cart in database
       await instance.patch(
         "/cart",
         {
@@ -171,24 +181,22 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
   const minusQuantity = async (item: CartItem): Promise<void> => {
     try {
-      setCartItemss((prev) =>
-        prev.map((i) => {
-          if (i._id === item._id) {
+      // Update quantity in cart
+      setCartItems((prev) =>
+        prev.map((item) => {
+          // Only update click cart item quantity and price if quantity is greater than 1
+          if (item._id === cartItem._id && item.quantity > 1) {
             return {
-              ...i,
-              quantity: i.quantity - (i.quantity > 1 ? 1 : 0),
+              ...item,
+              price: item.price - item.price / item.quantity,
+              quantity: item.quantity - 1,
             };
           }
           return item;
         }),
       );
 
-      if (item.quantity > 1) {
-        setCartItems((prev) => prev - 1);
-        sessionStorage.removeItem("cartItems");
-        sessionStorage.setItem("cartItems", JSON.stringify(cartItems - 1));
-      }
-
+      // Update quantity in cart in database
       await instance.patch(
         "/cart",
         {

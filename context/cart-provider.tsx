@@ -4,8 +4,8 @@ import React from "react";
 /* ######################################## CART CONTEXT ######################################## */
 
 type CartContextType = {
-  cartItems: number;
-  setCartItems: React.Dispatch<React.SetStateAction<number>>;
+  hasCartItems: boolean;
+  setHasCartItems: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const CartContext = React.createContext({} as CartContextType);
@@ -17,18 +17,18 @@ interface CartProviderProps {
 }
 
 const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [cartItems, setCartItems] = React.useState<number>(0);
+  const [hasCartItems, setHasCartItems] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    const data = sessionStorage.getItem("cartItems");
+    const data = sessionStorage.getItem("hasCartItems");
     if (data) {
-      setCartItems(Number(data));
+      setHasCartItems(true);
     }
-  }, []);
+  });
 
   return (
     <>
-      <CartContext.Provider value={{ cartItems, setCartItems }}>
+      <CartContext.Provider value={{ hasCartItems, setHasCartItems }}>
         {children}
       </CartContext.Provider>
     </>

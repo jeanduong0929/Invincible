@@ -4,13 +4,12 @@ import Link from "next/link";
 import Loading from "../loading";
 import UserDropdown from "./user-dropdown";
 import Category from "@/models/category";
+import MySession from "@/models/session";
+import instance from "@/lib/axios-config";
 import { Button } from "../ui/button";
+import { CartContext } from "@/context/cart-provider";
 import { ChevronDownIcon, ChevronUpIcon, ShoppingCartIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
-import instance from "@/lib/axios-config";
-import CartItem from "@/models/cart-item";
-import MySession from "@/models/session";
-import { CartContext } from "@/context/cart-provider";
 
 const Navbar = (): JSX.Element => {
   // States
@@ -112,7 +111,7 @@ interface RightItemProps {
 }
 
 const RightItems: React.FC<RightItemProps> = ({ mySession }): JSX.Element => {
-  const { cartItems } = React.useContext(CartContext);
+  const { hasCartItems } = React.useContext(CartContext);
 
   return (
     <>
@@ -120,10 +119,8 @@ const RightItems: React.FC<RightItemProps> = ({ mySession }): JSX.Element => {
         <Link href={"/cart"}>
           <div className="w-full relative">
             <ShoppingCartIcon className="w-7 h-7" />
-            {cartItems > 0 && (
-              <div className="absolute rounded-full bg-red-600 w-5 h-5 top-5 left-5 flex flex-col items-center justify-center">
-                <p className="text-white text-xs text-center">{cartItems}</p>
-              </div>
+            {hasCartItems && (
+              <div className="absolute rounded-full bg-red-600 w-5 h-5 top-5 left-5" />
             )}
           </div>
         </Link>

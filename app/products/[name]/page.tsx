@@ -7,9 +7,9 @@ import Loading from "@/components/loading";
 import instance from "@/lib/axios-config";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { CartContext } from "@/context/cart-provider";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
-import { CartContext } from "@/context/cart-provider";
 
 const ProductNamePage = ({ params }: { params: { name: string } }) => {
   // Path
@@ -29,7 +29,7 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
   const mySession = session ? (session as MySession) : null;
 
   // Context
-  const { cartItems, setCartItems } = React.useContext(CartContext);
+  const { setHasCartItems } = React.useContext(CartContext);
 
   // Custom hooks
   const { toast } = useToast();
@@ -55,6 +55,7 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
   const addToCart = async (): Promise<void> => {
     setAddToCartLoading(true);
     try {
+      // Add product to items to the database
       await instance.post(
         "/cart",
         {
@@ -67,18 +68,28 @@ const ProductNamePage = ({ params }: { params: { name: string } }) => {
         },
       );
 
+      // Update the cart context
+      setHasCartItems(true);
+
+      // Add cart session storage
+      addCartSessionStorage();
+
+      // Show success toaster
       toast({
         description: "Product added to cart",
         className: "bg-green-500 text-white",
       });
-
-      setCartItems(cartItems + 1);
-      sessionStorage.removeItem("cartItems");
-      sessionStorage.setItem("cartItems", JSON.stringify(cartItems + 1));
     } catch (error: any) {
       console.error(error);
     } finally {
       setAddToCartLoading(false);
+    }
+  };
+
+  const addCartSessionStorage = () => {
+    const data = sessionStorage.getItem("hasCartItems");
+    if (!data) {
+      sessionStorage.setItem("hasCartItems", "true");
     }
   };
 
