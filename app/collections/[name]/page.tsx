@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import FormInput from "@/components/form/form-input";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 /**
  * @function CollectionsNamePage
@@ -48,7 +49,7 @@ const CollectionsNamePage = ({
 
   React.useEffect(() => {
     getCategory();
-  }, []);
+  }, [dialogOpen]);
 
   /**
    * @function getCategory
@@ -112,6 +113,7 @@ const CollectionsNamePage = ({
         openDialog={dialogOpen}
         setOpenDialog={setDialogOpen}
         name={name}
+        mySession={mySession}
       />
     </>
   );
@@ -155,6 +157,7 @@ interface ProductDialogProps {
   name: string;
   openDialog: boolean;
   setOpenDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  mySession: MySession | null;
 }
 
 /**
@@ -165,6 +168,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   name,
   openDialog,
   setOpenDialog,
+  mySession,
 }): JSX.Element => {
   // Form states
   const [productName, setProductName] = React.useState<string>("");
@@ -184,6 +188,9 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   // Loading states
   const [addProductLoading, setAddProductLoading] =
     React.useState<boolean>(false);
+
+  // Custom hooks
+  const { toast } = useToast();
 
   React.useEffect(() => {
     if (
@@ -293,11 +300,61 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
   const addProduct = async (): Promise<void> => {
     setAddProductLoading(true);
     try {
+      // Get the category id
+      const { data } = await instance.get(`/category/${name}`, {
+        headers: {
+          token: mySession!.jwt,
+        },
+      });
+
+      // If there's data from the category request, add the product
+      if (data) {
+        console.log("Category data", data);
+        await instance.post(
+          "/product",
+          {
+            name: productName,
+            price: productPrice,
+            description: productDescription,
+            image: productImage,
+            category: data._id,
+          },
+          {
+            headers: {
+              token: mySession!.jwt,
+            },
+          },
+        );
+      }
+
+      // Show success toaster
+      toast({
+        description: "Product added successfully",
+        className: "bg-green-500 text-white",
+      });
+
+      // Reset the form and close modal
+      resetForm();
+      setOpenDialog(false);
     } catch (error: any) {
       console.error("Error when adding product", error);
+      if (error.response && error.response.status === 409) {
+        setProductNameError("Product name already exists");
+      }
     } finally {
       setAddProductLoading(false);
     }
+  };
+
+  const resetForm = (): void => {
+    setProductName("");
+    setProductPrice("");
+    setProductImage("");
+    setProductDescription("");
+    setProductNameError("");
+    setProductPriceError("");
+    setProductImageError("");
+    setProductDescriptionError("");
   };
 
   return (
@@ -305,7 +362,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create a product</DialogTitle>
+            <DialogTitle>Add a product</DialogTitle>
           </DialogHeader>
           <DialogDescription className="flex flex-col items-start gap-5">
             {/** product name */}

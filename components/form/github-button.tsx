@@ -10,7 +10,7 @@ const GithubButton = (): JSX.Element => {
     setLoading(true);
     try {
       signIn("github", {
-        callbackUrl: "http://localhost:3000/collections/basics",
+        callbackUrl: "http://localhost:3000/collections/tops",
       });
       sessionStorage.setItem("isLoggedIn", JSON.stringify(true));
     } catch (error: any) {

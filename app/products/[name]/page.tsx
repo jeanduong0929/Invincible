@@ -126,9 +126,10 @@ const ProductNamePage = ({
       <div className="flex max-w-screen-xl mx-auto w-11/12 my-20 gap-10">
         <Image
           src={`/images/${product.image}.png`}
+          className="w-1/2"
           alt={product.name}
-          width={1500}
-          height={1500}
+          width={1000}
+          height={1000}
         />
 
         <div className="flex flex-col gap-5 items-start w-full">
