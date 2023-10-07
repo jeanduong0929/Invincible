@@ -1,10 +1,11 @@
 import AccountEntity from "@/entities/account-entity";
 import UserEntity from "@/entities/user-entity";
-import NextAuth, { Session } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import connectDB from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { JWT } from "next-auth/jwt";
+import NextAuth, { Session } from "next-auth";
+import RoleEntity from "@/entities/role-entity";
 
 const handler = NextAuth({
   providers: [
@@ -96,9 +97,19 @@ const signInHelper = async (
       });
     }
 
+    // Find DEFAULT role
+    let defaultRole = await RoleEntity.findOne({ name: "DEFAULT" });
+
+    if (!defaultRole) {
+      defaultRole = await RoleEntity.create({
+        name: "DEFAULT",
+      });
+    }
+
     // Create a new user
     const newUser = await UserEntity.create({
       email,
+      role: defaultRole._id,
     });
 
     // Create a new account
@@ -122,6 +133,9 @@ const jwtHelper = async (user: any, token: any): Promise<JWT> => {
     // Find the user in the database
     const existingUser = await UserEntity.findOne({ email: user.email });
 
+    // Find the role of the user
+    const foundRole = await RoleEntity.findById(existingUser?.role);
+
     // Create a new token
     const jwtToken = jwt.sign(
       {
@@ -129,12 +143,13 @@ const jwtHelper = async (user: any, token: any): Promise<JWT> => {
         email: existingUser.email,
       },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h" },
+      { expiresIn: "1d" },
     );
 
     // Add the token and ID to the jwt property
     token.jwt = jwtToken;
     token.id = existingUser._id;
+    token.role = foundRole?.name;
     console.log("token: ", token);
   }
 
@@ -147,6 +162,7 @@ const sessionHelper = async (session: any, token: any): Promise<Session> => {
     // Add the jwt token to the session
     session.jwt = token.jwt;
     session.id = token.id;
+    session.role = token.role;
   }
   return session;
 };

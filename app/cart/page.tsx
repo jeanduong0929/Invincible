@@ -63,7 +63,7 @@ const CartPage = (): JSX.Element => {
           <h1 className="font-bold text-4xl w-full">Your cart</h1>
           <Link
             className="whitespace-nowrap underline underline-offset-4"
-            href={"/collections/topics"}
+            href={"/collections/tops"}
           >
             Continue shopping
           </Link>

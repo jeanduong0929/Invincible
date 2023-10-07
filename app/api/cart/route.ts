@@ -11,7 +11,14 @@ interface DecodedToken extends JwtPayload {
   email: string;
 }
 
-export const GET = async (req: NextRequest) => {
+/**
+ * @async
+ * @function GET
+ * @description Retrieves the user's cart items.
+ * @param {NextRequest} req - The request object containing the token.
+ * @returns {Promise<NextResponse>} The server response containing the cart items.
+ */
+export const GET = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const token = req.headers.get("token") as string;
 
@@ -43,7 +50,14 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
-export const POST = async (req: NextRequest) => {
+/**
+ * @async
+ * @function POST
+ * @description Adds a new item to the user's cart.
+ * @param {NextRequest} req - The request object containing the product id and token.
+ * @returns {Promise<NextResponse>} The server response.
+ */
+export const POST = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const { productId } = await req.json();
     const token = req.headers.get("token") as string;
@@ -98,7 +112,14 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-export const PATCH = async (req: NextRequest) => {
+/**
+ * @async
+ * @function PATCH
+ * @description Updates a cart item's quantity.
+ * @param {NextRequest} req - The request object containing the cart item id, add, minus and token.
+ * @returns {Promise<NextResponse>} The server response.
+ */
+export const PATCH = async (req: NextRequest): Promise<NextResponse> => {
   try {
     // Get the request body
     const { id, add, minus } = await req.json();
@@ -138,6 +159,12 @@ export const PATCH = async (req: NextRequest) => {
 
 /* ######################################## HELPER FUNCTIONS ######################################## */
 
+/**
+ * @function validateGetRequest
+ * @description Validates the GET request for getting the user's cart items.
+ * @param {string} token - The authentication token.
+ * @returns {NextResponse | null} A response object if validation fails, otherwise null.
+ */
 const validateGetRequest = (token: string): NextResponse | null => {
   if (!token) {
     console.error("Missing token");
@@ -150,6 +177,13 @@ const validateGetRequest = (token: string): NextResponse | null => {
   return null;
 };
 
+/**
+ * @function validatePostRequest
+ * @description Validates the POST request for adding a product to the user's cart.
+ * @param {string} productId - The product id.
+ * @param {string} token - The authentication token.
+ * @returns {NextResponse | null} A response object if validation fails, otherwise null.
+ */
 const validatePostRequest = (
   productId: string,
   token: string
@@ -165,6 +199,13 @@ const validatePostRequest = (
   return null;
 };
 
+/**
+ * @async
+ * @function getCart
+ * @description Returns the user's cart.
+ * @param {string} _id - The user id.
+ * @returns {Promise<CartDocument>} The user's cart.
+ */
 const getCart = async (_id: string): Promise<CartDocument> => {
   const existingCart = await CartEntity.findOne({ user: _id });
   if (!existingCart) {
@@ -176,6 +217,15 @@ const getCart = async (_id: string): Promise<CartDocument> => {
   return existingCart;
 };
 
+/**
+ * @function validatePatchRequest
+ * @description Validates the PATCH request for updating a cart item's quantity.
+ * @param {string} id - The cart item id.
+ * @param {boolean} add - Whether to add to the quantity.
+ * @param {boolean} minus - Whether to minus from the quantity.
+ * @param {string} token - The authentication token.
+ * @returns {NextResponse | null} A response object if validation fails, otherwise null.
+ */
 const validatePatchRequest = (
   id: string,
   add: boolean,

@@ -120,7 +120,7 @@ const RightItems: React.FC<RightItemProps> = ({ mySession }): JSX.Element => {
           <div className="w-full relative">
             <ShoppingCartIcon className="w-7 h-7" />
             {hasCartItems && (
-              <div className="absolute rounded-full bg-red-600 w-5 h-5 top-5 left-5" />
+              <div className="absolute rounded-full bg-green-900 w-4 h-4 top-5 left-5" />
             )}
           </div>
         </Link>
