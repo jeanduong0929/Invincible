@@ -7,6 +7,7 @@ interface FormInputProps {
   type: string;
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   error: string;
 }
 
@@ -15,6 +16,7 @@ const FormInput: React.FC<FormInputProps> = ({
   type,
   value,
   onChange,
+  handleBlur,
   error,
 }): JSX.Element => {
   return (
@@ -25,6 +27,7 @@ const FormInput: React.FC<FormInputProps> = ({
           type={type}
           value={value}
           onChange={onChange}
+          onBlur={handleBlur}
         />
         {error && <p className="text-red-500">{error}</p>}
       </div>

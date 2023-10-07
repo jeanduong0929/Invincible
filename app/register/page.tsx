@@ -2,8 +2,11 @@
 import FormButton from "@/components/form/form-button";
 import FormInput from "@/components/form/form-input";
 import GithubButton from "@/components/form/github-button";
+import { useToast } from "@/components/ui/use-toast";
+import instance from "@/lib/axios-config";
 import { WebhookIcon } from "lucide-react";
 import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
 import React from "react";
 
 const RegisterPage = (): JSX.Element => {
@@ -28,6 +31,10 @@ const RegisterForm = (): JSX.Element => {
 
   // Loading states
   const [registerLoading, setRegisterLoading] = React.useState<boolean>(false);
+
+  // Custom hooks
+  const { toast } = useToast();
+  const router = useRouter();
 
   const handleEmail = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setEmail(e.target.value);
@@ -55,7 +62,37 @@ const RegisterForm = (): JSX.Element => {
 
   const handleForm = async (
     e: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> => {};
+  ): Promise<void> => {
+    e.preventDefault();
+    setRegisterLoading(true);
+    try {
+      // Make request to sign up user
+      await instance.post("/auth/register", {
+        email,
+        password,
+      });
+
+      // Show success toaster
+      toast({
+        description: "Account created successfully",
+        className: "bg-green-500 text-white",
+      });
+
+      // Reset form
+      resetForm();
+
+      // Redirect to login screen
+      router.push("/login");
+    } catch (error: any) {
+      console.error(error);
+      // If email is already taken set email error
+      if (error.response && error.response.status === 409) {
+        setEmailError("Email is already taken");
+      }
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
 
   const isValidEmail = (email: string): boolean => {
     return /(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/.test(email);
@@ -64,6 +101,14 @@ const RegisterForm = (): JSX.Element => {
   const isValidPassword = (password: string): boolean => {
     return /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}/.test(password);
   };
+
+  const resetForm = (): void => {
+    setEmail("");
+    setPassword("");
+    setEmailError("");
+    setPasswordError("");
+  };
+
   return (
     <>
       <div className="w-1/2 flex flex-col items-center">
@@ -77,21 +122,35 @@ const RegisterForm = (): JSX.Element => {
             <WebhookIcon size={30} />
             <h1 className="text-2xl font-bold">Welcome Back</h1>
             <h2 className="text-slate-500">
-              Enter your email to sign in to your account
+              Enter your email to sign up for an account
             </h2>
           </div>
 
           {/* Content */}
           <div className="flex flex-col w-full gap-2">
+            {/* Email */}
             <FormInput
               placeholder={"name@example.com"}
               type={"email"}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmail}
+              handleBlur={handleEmail}
               error={emailError}
             />
+
+            {/* Password */}
+            <FormInput
+              placeholder={"Password"}
+              type={"password"}
+              value={password}
+              onChange={handlePassword}
+              handleBlur={handlePassword}
+              error={passwordError}
+            />
+
+            {/* Submit */}
             <FormButton
-              label={"Sign In with Email"}
+              label={"Sign Up with Email"}
               loading={registerLoading}
               type={"submit"}
             />
