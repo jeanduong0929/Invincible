@@ -119,6 +119,10 @@ const ProductNamePage = ({
     }
   };
 
+  const splitDescription = (description: string): string[] => {
+    return description.split(".");
+  };
+
   if (pageLoading) return <Loading />;
 
   return (
@@ -136,6 +140,15 @@ const ProductNamePage = ({
           <h2 className="px-20 py-2 bg-[#f0f0f0]">MADE IN USA</h2>
           <h1 className="font-bold text-2xl">{product.name}</h1>
           <h3 className="text-xl">${product.price}.00 USD</h3>
+          <div className="flex flex-col items-start gap-2">
+            <h3 className="font-bold text-xl">Features</h3>
+            {splitDescription(product.description).map(
+              (word, index) =>
+                index < splitDescription(product.description).length - 1 && (
+                  <li key={index}>{word}</li>
+                ),
+            )}
+          </div>
           <Button
             className="w-full py-6 rounded-none"
             onClick={addToCart}

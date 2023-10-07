@@ -10,6 +10,7 @@ import { CartContext } from "@/context/cart-provider";
 import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /**
  * @function CartPage
@@ -54,11 +55,16 @@ const CartPage = (): JSX.Element => {
     }
   };
 
+  const getSubTotal = (): number => {
+    return cartItems.reduce((acc, item) => acc + item.price, 0);
+  };
+
   if (pageLoading) return <Loading />;
 
   return (
     <>
       <div className="flex flex-col gap-10 max-w-screen-xl mx-auto my-20 w-11/12">
+        {/* Cart header */}
         <div className="flex items-center justify-between w-full">
           <h1 className="font-bold text-4xl w-full">Your cart</h1>
           <Link
@@ -68,6 +74,8 @@ const CartPage = (): JSX.Element => {
             Continue shopping
           </Link>
         </div>
+
+        {/* Cart items */}
         <table className="w-full text-left">
           <thead className="border-b">
             <tr>
@@ -89,6 +97,19 @@ const CartPage = (): JSX.Element => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cart total */}
+      <div className="flex flex-col items-end w-11/12 border-t max-w-screen-xl mx-auto">
+        <div className="w-[400px] flex flex-col items-end gap-5 mt-20">
+          <div className="flex items-center gap-2 text-lg">
+            <p className="font-bold">Subtotal:</p>
+            <p>${getSubTotal()}.00 USD</p>
+          </div>
+          <Button className="w-full py-7 rounded-none text-md">
+            Check out
+          </Button>
+        </div>
       </div>
     </>
   );

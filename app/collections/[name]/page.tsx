@@ -94,13 +94,21 @@ const CollectionsNamePage = ({
 
   return (
     <>
+      {/** COLLECTION header */}
       <div className="flex items-center justify-between max-w-screen-xl mx-auto w-11/12 my-20">
         <h1 className="font-bold text-4xl">{name.toUpperCase()}</h1>
         {mySession?.role === "ADMIN" && (
           <Button onClick={() => setDialogOpen(true)}>Add item</Button>
         )}
       </div>
-      <div className="flex flex-col items-center justify-center my-20">
+
+      {/** PRODUCT filters */}
+      <div className="max-w-screen-xl mx-auto w-11/12 flex justify-end">
+        <p className="text-slate-500">{products.length} products</p>
+      </div>
+
+      {/** PRODUCTS */}
+      <div className="flex flex-col items-center justify-center mt-5 mb-20">
         <div className="flex items-center gap-5 max-w-screen-xl w-11/12 mx-auto outline-none">
           {products.map((product: Product) => (
             <ProductItem key={product._id} product={product} />
