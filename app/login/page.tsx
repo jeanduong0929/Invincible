@@ -2,8 +2,8 @@
 import FormButton from "@/components/form/form-button";
 import FormInput from "@/components/form/form-input";
 import GithubButton from "@/components/form/github-button";
-import Loading from "@/components/loading";
 import { WebhookIcon } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 const LoginPage = (): JSX.Element => {
@@ -81,6 +81,12 @@ const LoginForm = () => {
           </div>
 
           <GithubButton />
+          <Link
+            href={"/register"}
+            className="text-center underline underline-offset-4 mt-2"
+          >
+            Dont have an account? Sign up
+          </Link>
         </div>
       </form>
     </>

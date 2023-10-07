@@ -50,14 +50,6 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
               Cart
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem className="cursor-pointer">
-            <UserIcon className="h-4 w-4 mr-2" />
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer">
-            <GearIcon className="h-4 w-4 mr-2" />
-            Settings
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
             <LogOutIcon className="h-4 w-4 mr-2" />

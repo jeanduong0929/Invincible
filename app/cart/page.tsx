@@ -61,6 +61,22 @@ const CartPage = (): JSX.Element => {
 
   if (pageLoading) return <Loading />;
 
+  if (cartItems.length === 0) {
+    return (
+      <>
+        {/* Empty cart */}
+        <div className="max-w-screen-xl mx-auto w-11/12 flex flex-col items-center justify-center h-[70vh] gap-10">
+          <h1 className="font-bold text-4xl">Your cart is empty</h1>
+          <Link href={"collections/tops"}>
+            <Button className="px-10 py-7 rounded-none">
+              Continue shopping
+            </Button>
+          </Link>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col gap-10 max-w-screen-xl mx-auto my-20 w-11/12">
