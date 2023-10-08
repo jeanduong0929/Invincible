@@ -139,7 +139,7 @@ interface ProductItemProps {
 const ProductItem: React.FC<ProductItemProps> = ({ product }): JSX.Element => {
   return (
     <>
-      <div className="flex flex-col items-start gap-3 cursor-pointer hover:scale-105 transition ease-in-out duration-300">
+      <div className="flex flex-col items-start gap-3 cursor-pointer hover:scale-105 transition ease-in-out duration-300 w-full">
         <Link
           href={`/products/${product.name}`}
           className="flex flex-col gap-3 w-full hover:underline underline-offset-4"
