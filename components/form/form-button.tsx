@@ -16,7 +16,7 @@ const FormButton: React.FC<FormButtonProps> = ({
 }): JSX.Element => {
   return (
     <>
-      <Button className="w-full" type={type}>
+      <Button className="w-full" type={type} disabled={loading}>
         {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
         {label}
       </Button>

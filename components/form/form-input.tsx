@@ -8,7 +8,7 @@ interface FormInputProps {
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  error: string;
+  error?: string;
 }
 
 const FormInput: React.FC<FormInputProps> = ({

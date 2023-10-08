@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export interface AccountDocument extends mongoose.Document {
   providerId: string;
   providerType: string;
-  userId: mongoose.Schema.Types.ObjectId;
+  user: mongoose.Schema.Types.ObjectId;
 }
 
 const accountSchema = new mongoose.Schema<AccountDocument>(
@@ -17,11 +17,10 @@ const accountSchema = new mongoose.Schema<AccountDocument>(
       type: String,
       required: true,
     },
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
     },
   },
   { timestamps: true },

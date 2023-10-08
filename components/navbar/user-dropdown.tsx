@@ -1,4 +1,9 @@
 import React from "react";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { Session } from "next-auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOutIcon, ShoppingBagIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,12 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signOut } from "next-auth/react";
-import { Session } from "next-auth";
-import { LogOutIcon, ShoppingBagIcon, UserIcon } from "lucide-react";
-import { GearIcon } from "@radix-ui/react-icons";
-import Link from "next/link";
 
 interface UserDropdownProps {
   session: Session | null;

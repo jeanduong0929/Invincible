@@ -1,17 +1,31 @@
 import AccountEntity from "@/entities/account-entity";
 import UserEntity from "@/entities/user-entity";
 import GithubProvider from "next-auth/providers/github";
+import RoleEntity from "@/entities/role-entity";
+import CredentialsProvider from "next-auth/providers/credentials";
 import connectDB from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { JWT } from "next-auth/jwt";
 import NextAuth, { Session } from "next-auth";
-import RoleEntity from "@/entities/role-entity";
+import instance from "@/lib/axios-config";
 
 const handler = NextAuth({
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {},
+      async authorize(credentials) {
+        // Check if the credentials are valid
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+        return authorizeHelper(email, password);
+      },
     }),
   ],
   callbacks: {
@@ -29,6 +43,7 @@ const handler = NextAuth({
         account,
         profile,
       );
+
       return signInHelper(user.email, providerId, providerType);
     },
     async jwt({ user, token }: { user: any; token: any }): Promise<JWT> {
@@ -50,6 +65,25 @@ const handler = NextAuth({
 });
 
 /* ######################################## HELPER FUNCTIONS ######################################## */
+
+const authorizeHelper = async (
+  email: string,
+  password: string,
+): Promise<any> => {
+  try {
+    // Log the user in
+    const { data } = await instance.post("/auth/login", {
+      email,
+      password,
+    });
+
+    // Return the user data
+    return data;
+  } catch (error: any) {
+    console.error("Error in CredentialsProvider: ", error);
+    return null;
+  }
+};
 
 const getProviderIdAndType = (
   user: any,
@@ -87,19 +121,21 @@ const signInHelper = async (
 
     // Check if there is a user with the same email
     const existingUser = await AccountEntity.findOne({ email });
-
-    // If there is a user with the same email, create a new account
     if (existingUser) {
       AccountEntity.create({
         providerId,
         providerType,
-        userId: existingUser._id,
+        user: existingUser._id,
       });
+
+      console.log("existingUser: ", existingUser);
+      return true;
     }
 
     // Find DEFAULT role
     let defaultRole = await RoleEntity.findOne({ name: "DEFAULT" });
 
+    // Make a default role
     if (!defaultRole) {
       defaultRole = await RoleEntity.create({
         name: "DEFAULT",
@@ -116,7 +152,7 @@ const signInHelper = async (
     await AccountEntity.create({
       providerId,
       providerType,
-      userId: newUser._id,
+      user: newUser._id,
     });
 
     // Return true if the user is successfully signed in

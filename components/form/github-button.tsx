@@ -22,7 +22,7 @@ const GithubButton = (): JSX.Element => {
 
   return (
     <div>
-      <Button className="w-full" onClick={handleSignIn}>
+      <Button className="w-full" onClick={handleSignIn} type="button">
         {loading ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
         ) : (

@@ -3,7 +3,9 @@ import FormButton from "@/components/form/form-button";
 import FormInput from "@/components/form/form-input";
 import GithubButton from "@/components/form/github-button";
 import { WebhookIcon } from "lucide-react";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const LoginPage = (): JSX.Element => {
@@ -29,12 +31,27 @@ const LoginForm = () => {
   // Loading state
   const [signInLoading, setSignInLoading] = React.useState<boolean>(false);
 
+  // Custom hooks
+  const router = useRouter();
+
   const handleForm = async (
     e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
     setSignInLoading(true);
     try {
+      const data = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (data && data.error) {
+        setError("Invalid email or password");
+        return;
+      }
+
+      router.push("/collections/tops");
     } catch (error: any) {
       console.error(error);
     } finally {
@@ -60,6 +77,7 @@ const LoginForm = () => {
 
         {/* Content */}
         <div className="flex flex-col w-full gap-2">
+          {/* Email */}
           <FormInput
             placeholder={"name@example.com"}
             type={"email"}
@@ -67,6 +85,16 @@ const LoginForm = () => {
             onChange={(e) => setEmail(e.target.value)}
             error={error}
           />
+
+          {/* Password */}
+          <FormInput
+            placeholder={"Password"}
+            type={"password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {/* Password */}
           <FormButton
             label={"Sign In with Email"}
             loading={signInLoading}

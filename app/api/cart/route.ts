@@ -221,22 +221,13 @@ const getCart = async (_id: string): Promise<CartDocument> => {
  * @function validatePatchRequest
  * @description Validates the PATCH request for updating a cart item's quantity.
  * @param {string} id - The cart item id.
- * @param {boolean} add - Whether to add to the quantity.
- * @param {boolean} minus - Whether to minus from the quantity.
  * @param {string} token - The authentication token.
  * @returns {NextResponse | null} A response object if validation fails, otherwise null.
  */
 const validatePatchRequest = (
   id: string,
-  add: boolean,
-  minus: boolean,
   token: string
 ): NextResponse | null => {
-  console.log("Id: ", id);
-  console.log("Add: ", add);
-  console.log("Minus: ", minus);
-  console.log("Token: ", token);
-
   if (!id || !token) {
     console.error("Missing id, add, minus or token");
     return NextResponse.json({}, { status: 400 });
